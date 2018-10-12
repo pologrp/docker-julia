@@ -32,16 +32,18 @@ RUN cmake -D CMAKE_INSTALL_PREFIX=/usr/local  \
 RUN cmake --build .
 RUN cmake --build . --target install
 
-# Build and install reference LAPACK from source
-RUN git clone https://github.com/Reference-LAPACK/lapack-release /tmp/lapack
-WORKDIR /tmp/lapack
-RUN git checkout -b install lapack-3.8.0
+# Build and install OpenBLAS from source
+RUN git clone https://github.com/xianyi/OpenBLAS /tmp/openblas
+WORKDIR /tmp/openblas
+RUN git checkout v0.3.3
 RUN mkdir build
-WORKDIR /tmp/lapack/build
+WORKDIR /tmp/openblas/build
 RUN cmake -D CMAKE_INSTALL_PREFIX=/usr/local  \
           -D CMAKE_BUILD_TYPE=Release         \
           -D BUILD_SHARED_LIBS=ON             \
-          -D BUILD_TESTING=OFF                \
+          -D BUILD_WITHOUT_LAPACK=OFF         \
+          -D BUILD_WITHOUT_CBLAS=ON           \
+          -D DYNAMIC_ARCH=ON                  \
           ../
 RUN cmake --build .
 RUN cmake --build . --target install
