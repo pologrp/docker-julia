@@ -26,8 +26,8 @@ RUN cmake -D CMAKE_INSTALL_PREFIX=/usr/local  \
           -D BUILD_STATIC=ON                  \
           -D WITH_OPENPGM=OFF                 \
           -D WITH_DOC=OFF                     \
-          -D LIBZMQ_WERROR=ON                 \
-          -D LIBZMQ_PEDANTIC=ON               \
+          -D LIBZMQ_WERROR=OFF                \
+          -D LIBZMQ_PEDANTIC=OFF              \
           ../
 RUN cmake --build .
 RUN cmake --build . --target install
@@ -41,8 +41,6 @@ WORKDIR /tmp/lapack/build
 RUN cmake -D CMAKE_INSTALL_PREFIX=/usr/local  \
           -D CMAKE_BUILD_TYPE=Release         \
           -D BUILD_SHARED_LIBS=ON             \
-          -D BUILD_COMPLEX=OFF                \
-          -D BUILD_COMPLEX16=OFF              \
           -D BUILD_TESTING=OFF                \
           ../
 RUN cmake --build .
