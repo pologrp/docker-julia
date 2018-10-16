@@ -55,7 +55,6 @@ WORKDIR /tmp/cereal/build
 RUN cmake -D CMAKE_INSTALL_PREFIX=/usr/local  \
           -D JUST_INSTALL_CEREAL=ON           \
           ../
-RUN cmake --build .
 RUN cmake --build . --target install
 
 # Install polo C-API from source
@@ -64,16 +63,16 @@ WORKDIR /tmp/polo
 RUN git checkout -b install
 RUN mkdir build
 WORKDIR /tmp/polo/build
-RUN cmake -D CMAKE_INSTALL_PREFIX=/usr/local  \
-          -D CMAKE_BUILD_TYPE=Release         \
-          -D BUILD_SHARED_LIBS=ON             \
+RUN cmake -D CMAKE_INSTALL_PREFIX=${HOME}/usr/local \
+          -D CMAKE_BUILD_TYPE=Release               \
+          -D BUILD_SHARED_LIBS=ON                   \
           ../
-RUN cmake --build .
 RUN cmake --build . --target install
 
 # Assemble all the built and installed libraries together
 FROM julia:1 AS final
 COPY --from=binaries /usr/local /usr/local
+COPY --from=binaries /root//usr/local /root/usr/local
 RUN apt-get update
 RUN apt-get install -y gcc gfortran git g++ make
-RUN julia --eval 'using Pkg; pkg"add https://github.com/pologrp/POLO.jl"'
+RUN julia --eval 'using Pkg; pkg"add https://github.com/pologrp/POLO.jl"; pkg"precompile"'
