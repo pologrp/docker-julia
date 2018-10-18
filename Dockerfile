@@ -60,7 +60,6 @@ RUN cmake --build . --target install
 # Install polo C-API from source
 RUN git clone https://github.com/pologrp/polo /tmp/polo
 WORKDIR /tmp/polo
-RUN git checkout -b install
 RUN mkdir build
 WORKDIR /tmp/polo/build
 RUN cmake -D CMAKE_INSTALL_PREFIX=${HOME}/usr/local \
@@ -69,10 +68,15 @@ RUN cmake -D CMAKE_INSTALL_PREFIX=${HOME}/usr/local \
           ../
 RUN cmake --build . --target install
 
+# Install POLO.jl and ParameterServer.jl
+RUN julia --eval 'using Pkg; pkg"add https://github.com/pologrp/POLO.jl";'
+RUN julia --eval 'using Pkg; pkg"add https://github.com/pologrp/ParameterServer.jl";'
+
 # Assemble all the built and installed libraries together
 FROM julia:1 AS final
 COPY --from=binaries /usr/local /usr/local
-COPY --from=binaries /root//usr/local /root/usr/local
+COPY --from=binaries /root/usr/local /root/usr/local
+COPY --from=binaries /root/.julia /root/.julia
 RUN apt-get update
 RUN apt-get install -y gcc gfortran git g++ make
-RUN julia --eval 'using Pkg; pkg"add https://github.com/pologrp/POLO.jl"; pkg"precompile"'
+RUN julia --eval 'using Pkg; pkg"build POLO ParameterServer"; pkg"precompile";'
